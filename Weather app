@@ -1,0 +1,75 @@
+import requests
+import re
+import string as s
+
+api_key="e27200b6690f570cbda56f34a0247cc4"
+
+def ensure_valid_input(prompt):
+    # Allowed characters: letters, digits, spaces, commas, periods, and hyphens
+    allowed_characters = s.ascii_letters + s.digits + " ,-.'"
+
+    while True:
+        user_input = input(prompt).strip()
+        try:
+            if not user_input:
+                print("You don't enter any city name.") 
+                continue
+
+            elif user_input.isdigit():
+                print("A city name can't contain digits only.") 
+                continue
+            
+            # Check for special characters
+            if any(char not in allowed_characters for char in user_input):
+                print("A city name can't contain special characters.")
+                continue
+            else:
+                return user_input
+        except ValueError:
+            print("Invalid city name.")
+        except Exception as e:
+            print(f"Error: {e}")
+
+def main():
+    print("*** Welcome to the weather app ***")
+    while True:  # Main loop
+        city = ensure_valid_input("Enter city: ")  # Validate city input
+        city = city.replace("-", " ")  # Replace "-" with space in city name
+
+        try:
+            weather_data = requests.get(
+                f"https://api.openweathermap.org/data/2.5/weather?q={city}&units=imperial&APPID={api_key}")
+            
+            data = weather_data.json()
+
+            if str(data["cod"]) == "200":  # Success: City found
+                city_name = data["name"]
+                temperature = round(data["main"]["temp"])
+                humidity = data["main"]["humidity"]
+                weather_condition = data["weather"][0]["description"]
+                wind_speed = data["wind"]["speed"]
+                country = data["sys"]["country"]
+
+                print(f"Country: {country}\nTemperature in {city_name}: {temperature}°F\nHumidity in {city_name}: {humidity}%\nWeather in {city_name}: {weather_condition}\nWind speed: {wind_speed} mph")
+                break  # Exit loop if weather data is successfully displayed
+
+            elif str(data["cod"]) == "404":  # City not found
+                print("No City Found! Please try again.")
+                continue  # Re-prompt for city
+
+            elif str(data["cod"]) == "401":  # Invalid API key
+                print("Invalid API key!")
+                break  # Exit loop due to invalid API key
+
+            else:
+                print("Something went wrong. Please try again.")
+                continue  # Retry if some other issue occurs
+
+        except requests.exceptions.ConnectionError:  # No internet connection
+            print("No internet found! Please check your connection.")
+            break  # Exit loop if no internet
+
+
+
+if __name__ == "__main__":
+    main()
