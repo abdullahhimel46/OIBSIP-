@@ -1,0 +1,44 @@
+
+# error handling while taking input from user
+def ensure_valid_input(prompt):
+    while True:
+        user_input=input(prompt) 
+        try:
+            value=float(user_input)
+            if value <= 0 :
+                print("Please enter positive numbers or a number greater than zero.")
+                continue
+            
+            return value
+        
+        except ValueError:  
+            print("Please enter numeric numbers.")
+        except Exception as e:  # For any other unknown errors
+            print(f"Error: {e}")
+
+# main
+def main():
+    print("*** Welcome to the BMI calculator ***")
+
+    # Get weight and height from the user
+    weight = ensure_valid_input("Enter your weight(in kg): ")
+    height = ensure_valid_input("Enter your height(in meters): ")
+
+    # Calculate BMI
+    bmi=weight/(height**2)
+
+    print(f"Your BMI: {bmi:.2f}")
+
+    # Provide feedback based on BMI range
+    if bmi < 18.5:
+        print("You're underweight! Consider consulting a nuritionist or maintain a healthy diet.")
+    elif 18.5 <= bmi < 24.9:
+        print("Your weight is normal. But don't forget to maintain a healthy lifestyle!")
+    elif 25 <= bmi < 29.9:
+        print("You're overweight! Please take a balanced diet and do regular exercise.")
+    else:
+        print("You're obese. Please consult a doctor or work on a fitness plan.")
+
+
+if __name__ == "__main__":
+    main()
